@@ -43,10 +43,10 @@ systemctl status elasticsearch.service
 cat /var/log/elasticsearch/elasticsearch.log
 nano /etc/elasticsearch/elasticsearch.yml
 systemctl start elasticsearch
-curl --cacert /etc/elasticsearch/certs/ca.crt -XGET https://siem.cgdev.dk:9200/_cat/nodes?pretty
+curl --cacert /etc/elasticsearch/certs/ca.crt -XGET https://siem.domain.dk:9200/_cat/nodes?pretty
 cd /usr/share/elasticsearch/
 /usr/share/elasticsearch/bin/elasticsearch-setup-passwords interactive
-curl --cacert /etc/elasticsearch/certs/ca.crt -XGET https://siem.cgdev.dk:9200/_cat/nodes?pretty -u elastic
+curl --cacert /etc/elasticsearch/certs/ca.crt -XGET https://siem.domain.dk:9200/_cat/nodes?pretty -u elastic
 sed  '/^#/d' /etc/kibana/kibana.yml | sed '/^$/d'
 ls /etc/kibana/
 ip address
