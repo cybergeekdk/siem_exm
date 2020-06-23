@@ -1,0 +1,12 @@
+server.port: 5601
+server.host: "10.64.110.15"
+server.name: "siem.domain.dk"
+elasticsearch.hosts: ["https://10.64.110.15:9200"]
+elasticsearch.username: "kibana"
+elasticsearch.password: "******"
+server.ssl.enabled: true
+server.ssl.certificate: /etc/kibana/certs/siem.crt
+server.ssl.key: /etc/kibana/certs/siem.key
+elasticsearch.ssl.certificateAuthorities: [ "/etc/kibana/certs/ca.crt" ]
+elasticsearch.ssl.verificationMode: 'full'
+xpack.encryptedSavedObjects.encryptionKey: 'fhjskloppd678ehkdfdlliverpoolfcr'
