@@ -1,0 +1,4 @@
+instances:
+  - name: 'siem'
+    dns: [ 'siem.domain.dk' ]
+    ip: [ '10.64.110.15' ]

@@ -1,0 +1,9 @@
+path.data: /var/lib/logstash
+pipeline.ordered: auto
+path.config: /etc/logstash/conf.d/*.conf
+path.logs: /var/log/logstash
+xpack.monitoring.enabled: false
+xpack.monitoring.elasticsearch.username: logstash_system
+xpack.monitoring.elasticsearch.password: *****
+xpack.monitoring.elasticsearch.hosts: ["https://siem.cgdev.dk:9200"]
+xpack.monitoring.elasticsearch.ssl.certificate_authority: [ "/etc/logstash/certs/ca.crt" ]

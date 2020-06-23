@@ -1,0 +1,99 @@
+auditbeat.modules:
+- module: auditd
+  # Load audit rules from separate files. Same format as audit.rules(7).
+  audit_rule_files: [ '${path.config}/audit.rules.d/*.conf' ]
+  audit_rules: |
+    ## Define audit rules here.
+    ## Create file watches (-w) or syscall audits (-a or -A). Uncomment these
+    ## examples or add your own rules.
+    ## If you are on a 64 bit platform, everything should be running
+    ## in 64 bit mode. This rule will detect any use of the 32 bit syscalls
+    ## because this might be a sign of someone exploiting a hole in the 32
+    ## bit API.
+    #-a always,exit -F arch=b32 -S all -F key=32bit-abi
+    ## Executions.
+    #-a always,exit -F arch=b64 -S execve,execveat -k exec
+    ## External access (warning: these can be expensive to audit).
+    -a always,exit -F arch=b64 -S accept,bind,connect -F key=external-access
+    ## Identity changes.
+    -w /etc/group -p wa -k identity
+    -w /etc/passwd -p wa -k identity
+    -w /etc/gshadow -p wa -k identity
+    ## Unauthorized access attempts.
+    -a always,exit -F arch=b64 -S open,creat,truncate,ftruncate,openat,open_by_handle_at -F exit=-EACCES -k access
+    #-a always,exit -F arch=b64 -S open,creat,truncate,ftruncate,openat,open_by_handle_at -F exit=-EPERM -k access
+- module: file_integrity
+  paths:
+  - /bin
+  - /usr/bin
+  - /sbin
+  - /usr/sbin
+  - /etc
+- module: system
+  datasets:
+    - package # Installed, updated, and removed packages
+  period: 2m # The frequency at which the datasets check for changes
+- module: system
+  datasets:
+    - host    # General host information, e.g. uptime, IPs
+    - login   # User logins, logouts, and system boots.
+    - process # Started and stopped processes
+    - user    # User information
+  # How often datasets send state updates with the
+  # current state of the system (e.g. all currently
+  # running processes, all open sockets).
+  state.period: 12h
+  # Enabled by default. Auditbeat will read password fields in
+  # /etc/passwd and /etc/shadow and store a hash locally to
+  # detect any changes.
+  user.detect_password_changes: true
+  # File patterns of the login record files.
+  login.wtmp_file_pattern: /var/log/wtmp*
+  login.btmp_file_pattern: /var/log/btmp*
+setup.template.settings:
+  index.number_of_shards: 1
+  #index.codec: best_compression
+  #_source.enabled: false
+setup.kibana:
+  # Kibana Host
+  # Scheme and port can be left out and will be set to the default (http and 5601)
+  # In case you specify and additional path, the scheme is required: http://localhost:5601/path
+  # IPv6 addresses should always be defined as: https://[2001:db8::1]:5601
+  host: "https://siem.domain.dk:5601"
+  ssl.certificate_authorities: ["/etc/pki/elasticsearch/ca.crt"]
+  # Kibana Space ID
+  # ID of the Kibana Space into which the dashboards should be loaded. By default,
+  # the Default Space will be used.
+  #space.id:
+output.elasticsearch:
+  # Array of hosts to connect to.
+  hosts: ["https://siem.domain.dk:9200"]
+  # Protocol - either `http` (default) or `https`.
+  protocol: "https"
+  # Authentication credentials - either API key or username/password.
+  #api_key: "id:api_key"
+  username: "elastic"
+  password: "*****"
+  #username: "elastic"
+  #password: "changeme"
+  ssl.certificate_authorities: ["/etc/pki/elasticsearch/ca.crt"]
+  #pipeline: geoip-info
+  # The Logstash hosts
+  #hosts: ["localhost:5044"]
+  # Optional SSL. By default is off.
+  # List of root certificates for HTTPS server verifications
+  #ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]
+  # Certificate for SSL client authentication
+  #ssl.certificate: "/etc/pki/client/cert.pem"
+  # Client Certificate Key
+  #ssl.key: "/etc/pki/client/cert.key"
+processors:
+  - add_cloud_metadata: ~
+      #- add_fields:
+      #target: ''
+  - add_docker_metadata: ~
+  - add_kubernetes_metadata: ~
+  #- add_fields:
+      #when.network.destination.ip: 10.101.101.0/24
+      #when.network.destination.ip: private
+  #- add_docker_metadata: ~
